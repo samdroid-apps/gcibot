@@ -33,7 +33,7 @@ HELP = "Paste a task link, and I will tell you everything about it"
 
 
 class GCIBot(irc.IRCClient):
-    nickname = '_gcibot_'
+    nickname = 'gcibot'
     username = 'gcibot'
     password = 'onepassword...'
 
@@ -81,7 +81,7 @@ class GCIBot(irc.IRCClient):
             return
 
         if isForMe and "hi" in msg[msg.find(self.nickname):]:
-            msg = "{user}, Who are you, and how you know me?".format(user=user)
+            msg = "{user}, Hi master.".format(user=user)
             self.msg(channel, msg)
             return
 
