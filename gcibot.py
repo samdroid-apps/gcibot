@@ -51,7 +51,13 @@ class GCIBot(irc.IRCClient):
     def privmsg(self, user, channel, msg):
         isMaster = "!~IgnacioUy@unaffiliated/ignaciouy" in user
         user = user.split('!', 1)[0]
-        isForMe = msg.startswith(self.nickname + ":") or msg.startswith(self.nickname + ",") or msg.startswith(self.nickname + " ")
+        isForMe = msg.startswith(
+            self.nickname +
+            ":") or msg.startswith(
+            self.nickname +
+            ",") or msg.startswith(
+            self.nickname +
+            " ")
 
         if "leave this channel gcibot" in msg and isMaster:
             self.msg(channel, "Yes master.")
@@ -76,7 +82,6 @@ class GCIBot(irc.IRCClient):
             msg = "{user}: Who are you, and how you know me?".format(user=user)
             self.msg(channel, msg)
             return
-
 
         links = re.findall(
             'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
