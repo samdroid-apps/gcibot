@@ -26,7 +26,7 @@ import requests
 from bs4 import BeautifulSoup
 
 META = '''I\'m a bot written by aviraldg who inserts metadata about GCI links!
-Source at: https://github.com/aviraldg/gcibot.
+Original source at: https://github.com/aviraldg/gcibot. Forked source (Ignacio Rodriguez): https://github.com/ignaciouy/gcibot/
 If you want to kick gcibot from this channel, just kick, or ask for 'ignacio' for remove it'''
 
 
