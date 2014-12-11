@@ -26,8 +26,10 @@ import requests
 from bs4 import BeautifulSoup
 
 META = '''I\'m a bot written by aviraldg who inserts metadata about GCI links!
-Original source at: https://github.com/aviraldg/gcibot. Forked source (Ignacio Rodriguez): https://github.com/ignaciouy/gcibot/
+Original source at: http://ur1.ca/j368e current source (forked) http://ur1.ca/j368j
 If you want to kick gcibot from this channel, just kick, or ask for 'ignacio' for remove it'''
+
+HELP = "Paste a task link, and I will tell you everything about it"
 
 
 class GCIBot(irc.IRCClient):
@@ -69,17 +71,22 @@ class GCIBot(irc.IRCClient):
             self.join(chan)
 
         if isForMe and "ping" in msg[msg.find(self.nickname):]:
-            msg = "{user}: pong".format(user=user)
+            msg = "{user}, pong".format(user=user)
             self.msg(channel, msg)
             return
 
         if isForMe and "about" in msg[msg.find(self.nickname):]:
-            msg = "{user}: {META}".format(user=user, META=META)
+            msg = "{user}, {META}".format(user=user, META=META)
             self.msg(channel, msg)
             return
 
         if isForMe and "hi" in msg[msg.find(self.nickname):]:
-            msg = "{user}: Who are you, and how you know me?".format(user=user)
+            msg = "{user}, Who are you, and how you know me?".format(user=user)
+            self.msg(channel, msg)
+            return
+
+        if isForMe and "help" in msg[msg.find(self.nickname):]:
+            msg = "{user}, {help}".format(user=user, help=HELP)
             self.msg(channel, msg)
             return
 
