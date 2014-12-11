@@ -25,11 +25,15 @@ import re
 import requests
 from bs4 import BeautifulSoup
 
-META = '''Hey, I\'m a bot written by aviraldg who inserts metadata about GCI links!
-Source at: https://github.com/aviraldg/gcibot.'''
+META = '''I\'m a bot written by aviraldg who inserts metadata about GCI links!
+Source at: https://github.com/aviraldg/gcibot.
+If you want to kick gcibot from this channel, just kick, or ask for 'ignacio' for remove it'''
+
 
 class GCIBot(irc.IRCClient):
-    nickname = 'gcibot'
+    nickname = '_gcibot_'
+    username = 'gcibot'
+    password = 'onepassword...'
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
@@ -41,18 +45,42 @@ class GCIBot(irc.IRCClient):
         for c in self.factory.channels:
             self.join(c)
 
-    def joined(self, channel):
-        self.msg(channel, META)
+#    def joined(self, channel):
+#        self.msg(channel, META)
 
     def privmsg(self, user, channel, msg):
+        isMaster = "!~IgnacioUy@unaffiliated/ignaciouy" in user
         user = user.split('!', 1)[0]
+        isForMe = msg.startswith(self.nickname + ":") or msg.startswith(self.nickname + ",") or msg.startswith(self.nickname + " ")
 
-        if msg.startswith(self.nickname + ":"):
+        if "leave this channel gcibot" in msg and isMaster:
+            self.msg(channel, "Yes master.")
+            self.leave(channel)
+
+        if isMaster and "join #" in msg:
+            chan = msg[5:]
+            print chan, msg
+            self.join(chan)
+
+        if isForMe and "ping" in msg[msg.find(self.nickname):]:
+            msg = "{user}: pong".format(user=user)
+            self.msg(channel, msg)
+            return
+
+        if isForMe and "about" in msg[msg.find(self.nickname):]:
             msg = "{user}: {META}".format(user=user, META=META)
             self.msg(channel, msg)
             return
 
-        links = re.findall('http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+', msg)
+        if isForMe and "hi" in msg[msg.find(self.nickname):]:
+            msg = "{user}: Who are you, and how you know me?".format(user=user)
+            self.msg(channel, msg)
+            return
+
+
+        links = re.findall(
+            'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
+            msg)
         for _ in links:
             if ('google-melange.com' in _) or ('google-melange.appspot.com' in _):
                 r = requests.get(_)
@@ -64,18 +92,21 @@ class GCIBot(irc.IRCClient):
                 A['hours'] = s.find('div', class_='time time-first')
                 if A['hours']:
                     A['hours'] = A['hours'].span.string
-                    A['minutes'] = s.find_all('div', class_='time')[1].span.string
+                    A['minutes'] = s.find_all(
+                        'div',
+                        class_='time')[1].span.string
                 else:
                     del A['hours']
 
                 for _ in A.keys():
-                    A[_] = str(A[_])  # IRC and Unicode don't mix very well, it seems.
+                    # IRC and Unicode don't mix very well, it seems.
+                    A[_] = str(A[_])
 
                 self.msg(channel, A['title'])
                 if 'hours' in A:
                     self.msg(channel, 'Status: ' + A['status'] +
-                        ' ({hours} hours, {minutes} minutes left)'.format(
-                            hours=A['hours'], minutes=A['minutes']))
+                             ' ({hours} hours, {minutes} minutes left)'.format(
+                        hours=A['hours'], minutes=A['minutes']))
                 else:
                     self.msg(channel, 'Status: ' + A['status'])
                 self.msg(channel, 'Mentor(s): ' + A['mentor'])
@@ -84,8 +115,8 @@ class GCIBot(irc.IRCClient):
         return '_' + nickname + '_'
 
 
-
 class BotFactory(protocol.ClientFactory):
+
     def __init__(self, channels):
         self.channels = channels
 
