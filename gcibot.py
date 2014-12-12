@@ -35,7 +35,7 @@ HELP = "Paste a task link, and I will tell you everything about it"
 class GCIBot(irc.IRCClient):
     nickname = 'gcibot'
     username = 'gcibot'
-    password = 'onepassword...'
+    password = 'irodriguez'
 
     def connectionMade(self):
         irc.IRCClient.connectionMade(self)
@@ -101,26 +101,16 @@ class GCIBot(irc.IRCClient):
                 A['title'] = s.find('span', class_='title').string
                 A['status'] = s.find('span', class_='status').span.string
                 A['mentor'] = s.find('span', class_='mentor').span.string
-                A['hours'] = s.find('div', class_='time time-first')
-                if A['hours']:
-                    A['hours'] = A['hours'].span.string
-                    A['minutes'] = s.find_all(
-                        'div',
-                        class_='time')[1].span.string
-                else:
-                    del A['hours']
-
+                A['remain'] = s.find('span', class_='remaining').span.string
                 for _ in A.keys():
                     # IRC and Unicode don't mix very well, it seems.
                     A[_] = str(A[_])
 
                 self.msg(channel, A['title'])
-                if 'hours' in A:
-                    self.msg(channel, 'Status: ' + A['status'] +
-                             ' ({hours} hours, {minutes} minutes left)'.format(
-                        hours=A['hours'], minutes=A['minutes']))
-                else:
-                    self.msg(channel, 'Status: ' + A['status'])
+                status = A['status']
+                if A['status'] == "Claimed" or A['status'] == "NeedsReview":
+                    status = A['status'] + ' (%s)' % A['remain']
+                self.msg(channel, 'Status: ' + status)
                 self.msg(channel, 'Mentor(s): ' + A['mentor'])
 
     def alterCollidedNick(self, nickname):
