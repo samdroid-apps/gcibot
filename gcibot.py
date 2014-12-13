@@ -29,8 +29,14 @@ META = '''I\'m a bot written by aviraldg who inserts metadata about GCI links!
 Original source at: http://ur1.ca/j368e current source (forked) http://ur1.ca/j368j
 If you want to kick gcibot from this channel, just kick, or ask for 'ignacio' for remove it'''
 
-HELP = "Paste a task link, and I will tell you everything about it"
-
+SOMETHING = {"hi": "Hi master.",
+             "bye": "Good bye!",
+             "i love you": "Sorry, I'm a bot. I haven't feelings.",
+             "hello": "Hello master.",
+             "ping": "pong",
+             "thanks": "you're welcome.",
+             "thx": "you're welcome.",
+             "help": "Paste a task link, and I will tell you everything about it"}
 
 class GCIBot(irc.IRCClient):
     nickname = 'gcibot'
@@ -70,25 +76,16 @@ class GCIBot(irc.IRCClient):
             print chan, msg
             self.join(chan)
 
-        if isForMe and "ping" in msg[msg.find(self.nickname):]:
-            msg = "{user}, pong".format(user=user)
-            self.msg(channel, msg)
-            return
-
         if isForMe and "about" in msg[msg.find(self.nickname):]:
             msg = "{user}, {META}".format(user=user, META=META)
             self.msg(channel, msg)
             return
 
-        if isForMe and "hi" in msg[msg.find(self.nickname):]:
-            msg = "{user}, Hi master.".format(user=user)
-            self.msg(channel, msg)
-            return
-
-        if isForMe and "help" in msg[msg.find(self.nickname):]:
-            msg = "{user}, {help}".format(user=user, help=HELP)
-            self.msg(channel, msg)
-            return
+        for thing in SOMETHING:
+            if isForMe and thing in msg[msg.find(self.nickname):]:
+                msg = "{user}, {msg}".format(user=user, msg=SOMETHING[thing])
+                self.msg(channel, msg)
+                return
 
         links = re.findall(
             'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
