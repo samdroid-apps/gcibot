@@ -131,7 +131,7 @@ class GCIBot(irc.IRCClient):
                         class_='remaining').span.string
                     for _ in A.keys():
                         # IRC and Unicode don't mix very well, it seems.
-                        A[_] = str(A[_])
+                        A[_] = unicode(A[_]).encode('utf-8')
 
                     self.msg(channel, A['title'])
                     status = A['status']
