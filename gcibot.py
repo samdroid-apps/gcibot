@@ -29,18 +29,21 @@ import requests
 import datetime
 from bs4 import BeautifulSoup
 
-META = ["I\'m a bot written by aviraldg who inserts metadata about GCI links!",
-"Original source at: http://ur1.ca/j368e current source (forked) http://ur1.ca/j368j",
-"If you want to kick gcibot from this channel, just kick, or ask for 'ignacio' for remove it"]
+META = [
+    "I\'m a bot written by aviraldg who inserts metadata about GCI links!",
+    "Original source at: http://ur1.ca/j368e current source (forked) http://ur1.ca/j368j",
+    "If you want to kick gcibot from this channel, just kick, or ask for 'ignacio' for remove it"]
 
-SOMETHING = {"hi": "Hi master.",
-             "bye": "Good bye!",
-             "i love you": "Sorry, I'm a bot. I haven't feelings.",
-             "hello": "Hello master.",
-             "ping": "pong",
-             "thanks": "you're welcome.",
-             "thx": "you're welcome.",
-             "help": "Paste a task link, and I will tell you everything about it"}
+SOMETHING = {
+    "hi": "Hi master.",
+    "bye": "Good bye!",
+    "i love you": "Sorry, I'm a bot. I haven't feelings.",
+    "hello": "Hello master.",
+    "ping": "pong",
+    "thanks": "you're welcome.",
+    "thx": "you're welcome.",
+    "help": "Paste a task link, and I will tell you everything about it"}
+
 
 class GCIBot(irc.IRCClient):
     nickname = 'gcibot'
@@ -88,7 +91,9 @@ class GCIBot(irc.IRCClient):
 
             for thing in SOMETHING:
                 if isForMe and thing in msg[msg.find(self.nickname):]:
-                    msg = "{user}, {msg}".format(user=user, msg=SOMETHING[thing])
+                    msg = "{user}, {msg}".format(
+                        user=user,
+                        msg=SOMETHING[thing])
                     self.msg(channel, msg)
                     return
 
@@ -99,7 +104,8 @@ class GCIBot(irc.IRCClient):
                 if day == 25 and month == 12:
                     msg = "{user}, merry christmas!".format(user=user)
                 else:
-                    msg = "{user}, are you serious? Christmas? pls..".format(user=user)
+                    msg = "{user}, are you serious? Christmas? pls..".format(
+                        user=user)
                 self.msg(channel, msg)
                 return
 
@@ -114,19 +120,25 @@ class GCIBot(irc.IRCClient):
                     A['title'] = s.find('span', class_='title').string
                     A['status'] = s.find('span', class_='status').span.string
                     A['mentor'] = s.find('span', class_='mentor').span.string
-                    A['remain'] = s.find('span', class_='remaining').span.string
+                    A['remain'] = s.find(
+                        'span',
+                        class_='remaining').span.string
                     for _ in A.keys():
                         # IRC and Unicode don't mix very well, it seems.
                         A[_] = str(A[_])
 
                     self.msg(channel, A['title'])
                     status = A['status']
-                    if A['status'] == "Claimed" or A['status'] == "NeedsReview":
+                    if A['status'] == "Claimed" or A[
+                            'status'] == "NeedsReview":
                         status = A['status'] + ' (%s)' % A['remain']
                     self.msg(channel, 'Status: ' + status)
                     self.msg(channel, 'Mentor(s): ' + A['mentor'])
-        except Exception as  e:
-            self.describe(channel, "ERROR: '%s'. Please contact my mantainer: ignacio@sugarlabs.org" % str(e))
+        except Exception as e:
+            self.describe(
+                channel,
+                "ERROR: '%s'. Please contact my mantainer: ignacio@sugarlabs.org" %
+                str(e))
 
     def alterCollidedNick(self, nickname):
         return '_' + nickname + '_'
