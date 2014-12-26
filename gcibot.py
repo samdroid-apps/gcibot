@@ -97,6 +97,12 @@ class GCIBot(irc.IRCClient):
                     self.msg(channel, msg)
                     return
 
+            if isForMe and 'datetime' in msg:
+                today = str(datetime.datetime.today())
+                msg = "{user}, {date}".format(user=user, date=today)
+                self.msg(channel, msg)
+                return
+
             if isForMe and 'merry xmas' in msg or 'merry christmas' in msg:
                 today = datetime.datetime.today()
                 day = today.day
