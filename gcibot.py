@@ -29,9 +29,9 @@ import requests
 import datetime
 from bs4 import BeautifulSoup
 
-META = '''I\'m a bot written by aviraldg who inserts metadata about GCI links!
-Original source at: http://ur1.ca/j368e current source (forked) http://ur1.ca/j368j
-If you want to kick gcibot from this channel, just kick, or ask for 'ignacio' for remove it'''
+META = ["I\'m a bot written by aviraldg who inserts metadata about GCI links!",
+"Original source at: http://ur1.ca/j368e current source (forked) http://ur1.ca/j368j",
+"If you want to kick gcibot from this channel, just kick, or ask for 'ignacio' for remove it"]
 
 SOMETHING = {"hi": "Hi master.",
              "bye": "Good bye!",
@@ -81,8 +81,9 @@ class GCIBot(irc.IRCClient):
                 self.join(chan)
 
             if isForMe and "about" in msg[msg.find(self.nickname):]:
-                msg = "{user}, {META}".format(user=user, META=META)
-                self.msg(channel, msg)
+                for line in META:
+                    msg = "{user}, {META}".format(user=user, META=line)
+                    self.msg(channel, msg)
                 return
 
             for thing in SOMETHING:
@@ -150,6 +151,9 @@ class BotFactory(protocol.ClientFactory):
 
 
 if __name__ == '__main__':
-    f = BotFactory(sys.argv)
+    f = BotFactory(sys.argv[1:])
     reactor.connectTCP("irc.freenode.net", 6667, f)
+    print "Connected to server. Channels:"
+    for channel in sys.argv[1:]:
+        print channel
     reactor.run()
