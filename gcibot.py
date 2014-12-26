@@ -1,4 +1,7 @@
+#!/usr/bin/env python
+# -*- coding: utf-8 -*-
 # Copyright (C) 2012 Aviral Dasgupta <aviraldg@gmail.com>
+# Copyright (C) 2013-15 Ignacio Rodríguez <ignacio@sugarlabs.org>
 #
 # Permission is hereby granted, free of charge, to any person obtaining a copy
 # of this software and associated documentation files (the "Software"), to deal
@@ -23,6 +26,7 @@ from twisted.words.protocols import irc
 import sys
 import re
 import requests
+import datetime
 from bs4 import BeautifulSoup
 
 META = '''I\'m a bot written by aviraldg who inserts metadata about GCI links!
@@ -57,58 +61,71 @@ class GCIBot(irc.IRCClient):
 #        self.msg(channel, META)
 
     def privmsg(self, user, channel, msg):
-        isMaster = "!~IgnacioUy@unaffiliated/ignaciouy" in user
-        user = user.split('!', 1)[0]
-        isForMe = msg.startswith(
-            self.nickname +
-            ":") or msg.startswith(
-            self.nickname +
-            ",") or msg.startswith(
-            self.nickname +
-            " ")
+        try:
+            isMaster = "!~IgnacioUy@unaffiliated/ignaciouy" in user
+            user = user.split('!', 1)[0]
+            isForMe = msg.startswith(
+                self.nickname +
+                ":") or msg.startswith(
+                self.nickname +
+                ",") or msg.startswith(
+                self.nickname +
+                " ")
 
-        if "leave this channel gcibot" in msg and isMaster:
-            self.msg(channel, "Yes master.")
-            self.leave(channel)
+            if "leave this channel gcibot" in msg and isMaster:
+                self.msg(channel, "Yes master.")
+                self.leave(channel)
 
-        if isMaster and "join #" in msg:
-            chan = msg[5:]
-            print chan, msg
-            self.join(chan)
+            if isMaster and "join #" in msg:
+                chan = msg[5:]
+                self.join(chan)
 
-        if isForMe and "about" in msg[msg.find(self.nickname):]:
-            msg = "{user}, {META}".format(user=user, META=META)
-            self.msg(channel, msg)
-            return
-
-        for thing in SOMETHING:
-            if isForMe and thing in msg[msg.find(self.nickname):]:
-                msg = "{user}, {msg}".format(user=user, msg=SOMETHING[thing])
+            if isForMe and "about" in msg[msg.find(self.nickname):]:
+                msg = "{user}, {META}".format(user=user, META=META)
                 self.msg(channel, msg)
                 return
 
-        links = re.findall(
-            'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
-            msg)
-        for _ in links:
-            if ('google-melange.com' in _) or ('google-melange.appspot.com' in _):
-                r = requests.get(_)
-                s = BeautifulSoup(r.text)
-                A = {}
-                A['title'] = s.find('span', class_='title').string
-                A['status'] = s.find('span', class_='status').span.string
-                A['mentor'] = s.find('span', class_='mentor').span.string
-                A['remain'] = s.find('span', class_='remaining').span.string
-                for _ in A.keys():
-                    # IRC and Unicode don't mix very well, it seems.
-                    A[_] = str(A[_])
+            for thing in SOMETHING:
+                if isForMe and thing in msg[msg.find(self.nickname):]:
+                    msg = "{user}, {msg}".format(user=user, msg=SOMETHING[thing])
+                    self.msg(channel, msg)
+                    return
 
-                self.msg(channel, A['title'])
-                status = A['status']
-                if A['status'] == "Claimed" or A['status'] == "NeedsReview":
-                    status = A['status'] + ' (%s)' % A['remain']
-                self.msg(channel, 'Status: ' + status)
-                self.msg(channel, 'Mentor(s): ' + A['mentor'])
+            if isForMe and 'merry xmas' in msg or 'merry christmas' in msg:
+                today = datetime.datetime.today()
+                day = today.day
+                month = today.month
+                if day == 26 and month == 12:
+                    msg = "{user}, merry christmas!".format(user=user)
+                else:
+                    msg = "{user}, are you serious? Christmas? pls..".format(user=user)
+                self.msg(channel, msg)
+                return
+
+            links = re.findall(
+                'http[s]?://(?:[a-zA-Z]|[0-9]|[$-_@.&+]|[!*\(\),]|(?:%[0-9a-fA-F][0-9a-fA-F]))+',
+                msg)
+            for _ in links:
+                if ('google-melange.com' in _) or ('google-melange.appspot.com' in _):
+                    r = requests.get(_)
+                    s = BeautifulSoup(r.text)
+                    A = {}
+                    A['title'] = s.find('span', class_='title').string
+                    A['status'] = s.find('span', class_='status').span.string
+                    A['mentor'] = s.find('span', class_='mentor').span.string
+                    A['remain'] = s.find('span', class_='remaining').span.string
+                    for _ in A.keys():
+                        # IRC and Unicode don't mix very well, it seems.
+                        A[_] = str(A[_])
+
+                    self.msg(channel, A['title'])
+                    status = A['status']
+                    if A['status'] == "Claimed" or A['status'] == "NeedsReview":
+                        status = A['status'] + ' (%s)' % A['remain']
+                    self.msg(channel, 'Status: ' + status)
+                    self.msg(channel, 'Mentor(s): ' + A['mentor'])
+        except Exception as  e:
+            self.describe(channel, "ERROR: '%s'. Please contact my mantainer: ignacio@sugarlabs.org" % str(e))
 
     def alterCollidedNick(self, nickname):
         return '_' + nickname + '_'
