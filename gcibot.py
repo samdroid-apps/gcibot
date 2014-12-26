@@ -96,7 +96,7 @@ class GCIBot(irc.IRCClient):
                 today = datetime.datetime.today()
                 day = today.day
                 month = today.month
-                if day == 26 and month == 12:
+                if day == 25 and month == 12:
                     msg = "{user}, merry christmas!".format(user=user)
                 else:
                     msg = "{user}, are you serious? Christmas? pls..".format(user=user)
