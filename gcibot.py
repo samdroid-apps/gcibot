@@ -44,6 +44,8 @@ SOMETHING = {
     "thx": "you're welcome.",
     "help": "Paste a task link, and I will tell you everything about it"}
 
+YEARS = {'2011': 7, '2012': 7, '2013': 16, '2014': 16}
+
 
 class GCIBot(irc.IRCClient):
     nickname = 'gcibot'
@@ -75,7 +77,7 @@ class GCIBot(irc.IRCClient):
                 self.nickname +
                 " ")
 
-            if "leave this channel gcibot" in msg and isMaster:
+            if "leave this channel " + self.nickname in msg and isMaster:
                 self.msg(channel, "Yes master.")
                 self.leave(channel)
 
@@ -122,6 +124,13 @@ class GCIBot(irc.IRCClient):
                 isTask = re.findall("/gci/task/view/google/gci(\d+)/(\d+)", _)
                 if not isTask:
                     return
+                isTask = isTask[0]
+
+                if isTask[0] not in YEARS or len(isTask) < 2 or len(
+                        isTask[1]) != YEARS[
+                        isTask[0]]:
+                    return
+
                 if ('google-melange.com' in _) or ('google-melange.appspot.com' in _):
                     r = requests.get(_)
                     s = BeautifulSoup(r.text)
@@ -143,7 +152,7 @@ class GCIBot(irc.IRCClient):
                         status = A['status'] + ' (%s)' % A['remain']
                     self.msg(channel, 'Status: ' + status)
                     self.msg(channel, 'Mentor(s): ' + A['mentor'])
-        except Exception as e:
+        except OSError as e:
             self.describe(
                 channel,
                 "ERROR: '%s'. Please contact my mantainer: ignacio@sugarlabs.org" %
